@@ -1,0 +1,36 @@
+services:
+  garage:
+    image: dxflrs/garage:v2.1.0
+    container_name: garage
+    restart: unless-stopped
+    networks:
+      - garage-net
+    ports:
+      - 3900:3900
+    volumes:
+      - ./config/garage.toml:/etc/garage.toml:ro
+      - garage-meta:/var/lib/garage/meta
+      - garage-data:/var/lib/garage/data
+
+  garage-webui:
+    image: khairul169/garage-webui:latest
+    container_name: garage-webui
+    restart: unless-stopped
+    networks:
+      - garage-net
+    ports:
+      - "3909:3909"
+    environment:
+      API_BASE_URL: "http://garage:3903"
+      S3_ENDPOINT_URL: "http://garage:3900"
+      AUTH_USER_PASS: "${AUTH_USER_PASS}"
+    volumes:
+      - ./config/garage.toml:/etc/garage.toml:ro
+
+volumes:
+  garage-meta:
+  garage-data:
+
+networks:
+  garage-net:
+    driver: bridge
